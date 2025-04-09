@@ -1,9 +1,7 @@
 import streamlit as st
 import openai
 import fitz
-import re
 
-# استخدام المفتاح من secrets
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
 def extract_text_from_pdf(file):
@@ -17,7 +15,7 @@ def get_part_numbers(text):
     response = openai.chat.completions.create(
         model="gpt-4",
         messages=[
-            {"role": "system", "content": "أنت خبير في كتالوجات باناسونيك. استخرج أرقام القطع فقط وصنّفها (داخلي أو خارجي). إذا لم تكن متأكدًا، وضّح ذلك."},
+            {"role": "system", "content": "أنت خبير في كتالوجات باناسونيك. استخرج فقط أرقام القطع وصنّف كل واحدة (داخلي أو خارجي). إذا لم تكن متأكدًا، قل ذلك."},
             {"role": "user", "content": text[:3000]}
         ],
         temperature=0
@@ -33,4 +31,4 @@ if uploaded_file:
         text = extract_text_from_pdf(uploaded_file)
         result = get_part_numbers(text)
         st.success("تم التحليل بنجاح!")
-        st.text_area("النتيجة", value=result, height=300) 
+        st.text_area("النتيجة", value=result, height=300)
