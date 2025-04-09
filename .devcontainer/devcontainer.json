@@ -3,10 +3,9 @@ import openai
 import fitz
 import re
 
-# ربط مفتاح API
+# استخدام المفتاح من secrets
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
-# استخراج النص من PDF
 def extract_text_from_pdf(file):
     pdf_document = fitz.open(stream=file.read(), filetype="pdf")
     text = ''
@@ -14,26 +13,24 @@ def extract_text_from_pdf(file):
         text += page.get_text()
     return text
 
-# طلب GPT لتحليل النص
 def get_part_numbers(text):
     response = openai.chat.completions.create(
         model="gpt-4",
         messages=[
-            {"role": "system", "content": "أنت مساعد خبير في كتالوجات باناسونيك. استخرج فقط أرقام القطع (Part Numbers) وحدد نوع كل قطعة: داخلي أو خارجي. إذا لم تكن متأكدًا، قل ذلك."},
-            {"role": "user", "content": text[:3000]}  # نكتفي بـ 3000 حرف فقط
+            {"role": "system", "content": "أنت خبير في كتالوجات باناسونيك. استخرج أرقام القطع فقط وصنّفها (داخلي أو خارجي). إذا لم تكن متأكدًا، وضّح ذلك."},
+            {"role": "user", "content": text[:3000]}
         ],
         temperature=0
     )
     return response.choices[0].message.content
 
-# واجهة المستخدم
 st.title("استخراج أرقام Parts (أجهزة باناسونيك)")
 
 uploaded_file = st.file_uploader("ارفع ملف PDF", type="pdf")
 
 if uploaded_file:
-    with st.spinner("جارٍ المعالجة..."):
+    with st.spinner("جارٍ التحليل..."):
         text = extract_text_from_pdf(uploaded_file)
         result = get_part_numbers(text)
-        st.success("تم الاستخراج بنجاح!")
-        st.text_area("النتيجة", value=result, height=300)
+        st.success("تم التحليل بنجاح!")
+        st.text_area("النتيجة", value=result, height=300) 
