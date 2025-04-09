@@ -1,34 +1,10 @@
-import streamlit as st
-import openai
-import fitz
+from openai import OpenAI
 
-openai.api_key = st.secrets["OPENAI_API_KEY"]
-
-def extract_text_from_pdf(file):
-    pdf_document = fitz.open(stream=file.read(), filetype="pdf")
-    text = ''
-    for page in pdf_document:
-        text += page.get_text()
-    return text
-
-def get_part_numbers(text):
-    response = openai.chat.completions.create(
-        model="gpt-4",
-        messages=[
-            {"role": "system", "content": "أنت خبير في كتالوجات باناسونيك. استخرج فقط أرقام القطع وصنّف كل واحدة (داخلي أو خارجي). إذا لم تكن متأكدًا، قل ذلك."},
-            {"role": "user", "content": text[:3000]}
-        ],
-        temperature=0
-    )
-    return response.choices[0].message.content
-
-st.title("استخراج أرقام Parts (أجهزة باناسونيك)")
-
-uploaded_file = st.file_uploader("ارفع ملف PDF", type="pdf")
-
-if uploaded_file:
-    with st.spinner("جارٍ التحليل..."):
-        text = extract_text_from_pdf(uploaded_file)
-        result = get_part_numbers(text)
-        st.success("تم التحليل بنجاح!")
-        st.text_area("النتيجة", value=result, height=300)
+client = OpenAI(api_key="your-api-key")
+response = client.chat.completions.create(
+    model="gpt-3.5-turbo",
+    messages=[
+        {"role": "user", "content": "Hello!"}
+    ]
+)
+print(response.choices[0].message.content)
